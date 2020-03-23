@@ -24,7 +24,7 @@
         android:gravity="center"
         android:layout_gravity="center"
         android:layout_marginTop="15dp"
-        android:text="check"/>
+        android:text="show paths"/>
 
     <RadioGroup
         android:layout_width="fill_parent"

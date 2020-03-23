@@ -79,11 +79,9 @@ namespace simple_Camera
         {
             if (Directory.Exists(sourceDir))
             {
-                Toast.MakeText(this, "Source Dir Exists...", ToastLength.Long).Show();
+                Toast.MakeText(this, "Source Dir Exists...", ToastLength.Short).Show();
                 try
                 {
-                    /*string sourceDir = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures).ToString() + "/PrzegladyZdjecia";
-                    string destDir = GetBaseFolderPath(true) + "/CheckThisOutOnSD";*/
                     string[] picList = Directory.GetFiles(sourceDir, "*.jpg");
 
                     if (!Directory.Exists(destDir))
@@ -91,7 +89,6 @@ namespace simple_Camera
 
                     foreach (string f in picList)
                     {
-                        //Toast.MakeText(this, f, ToastLength.Long).Show();
                         string fName = f.Substring(sourceDir.Length + 1);
                         System.IO.File.Copy(System.IO.Path.Combine(sourceDir, fName), System.IO.Path.Combine(destDir, fName), true);
                     }
@@ -99,7 +96,6 @@ namespace simple_Camera
                     foreach (string f in picList)
                     {
                         System.IO.File.Delete(f);
-                        //Toast.MakeText(this, "Usuwamy " + f, ToastLength.Long).Show();
                     }
 
                 }
@@ -107,8 +103,7 @@ namespace simple_Camera
                 {
                     Toast.MakeText(this, dirNotFound.ToString(), ToastLength.Long).Show();
                 }
-                //Copy(Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures).ToString() + "/newDirectory", Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures).ToString() + "/CheckThis");
-                Toast.MakeText(this, "DONE", ToastLength.Long).Show();
+                Toast.MakeText(this, "DONE", ToastLength.Short).Show();
             }
         }
 
@@ -164,12 +159,6 @@ namespace simple_Camera
 
             if (file == null)
                 return;
-
-            //Check the last taken photo
-            //byte[] imageArray = System.IO.File.ReadAllBytes(file.Path);
-            //Bitmap bitmap = BitmapFactory.DecodeByteArray(imageArray, 0, imageArray.Length);
-            //ImageViewLastPhoto.SetImageBitmap(bitmap);
-            //txtPath.Text = file.Path;
             
         }
 
