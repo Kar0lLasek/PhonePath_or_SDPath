@@ -15,9 +15,11 @@ namespace simple_Camera
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = true)]
     public class MainActivity : AppCompatActivity
     {
-        Button btnDoPhoto, btnSettings, check;
-        ImageView ImageViewLastPhoto;
-        TextView txtPath;
+        public static string PHONE_PATH_PICTURES = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures).ToString();
+        public static string SD_PATH_PICTURES = GetBaseFolderPath(true) + "/Pictures";
+        public static string FOLDER_NAME = "PrzegladyZdjecia";
+
+        Button btnDoPhoto, check;
 
         readonly string[] permissionGroup =
         {
@@ -30,29 +32,85 @@ namespace simple_Camera
         {
             base.OnCreate(savedInstanceState);
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
-            // Set our view from the "main" layout resource
             SetContentView(Resource.Layout.activity_main);
 
             btnDoPhoto = (Button)FindViewById(Resource.Id.btnDoPhoto);
-            btnSettings = (Button)FindViewById(Resource.Id.btnSettings);
-            ImageViewLastPhoto = (ImageView)FindViewById(Resource.Id.ImageViewLastPhoto);
-            txtPath = (TextView)FindViewById(Resource.Id.txtPath);
             check = (Button)FindViewById(Resource.Id.check);
+            RadioButton radioPhone = FindViewById<RadioButton>(Resource.Id.radioPhone);
+            RadioButton radioSD = FindViewById<RadioButton>(Resource.Id.radioSD);
+
+            radioPhone.Click += RadioButtonClick;
+            radioSD.Click += RadioButtonClick;
 
             check.Click += checkFunction;
             btnDoPhoto.Click += DoPhoto_Click;
-            btnSettings.Click += Settings_Click;
             RequestPermissions(permissionGroup, 0);
+        }
+
+        private void RadioButtonClick(object sender, EventArgs e)
+        {
+            RadioButton rb = (RadioButton)sender;
+            //Toast.MakeText(this, rb.Text, ToastLength.Short).Show();
+            if(SD_PATH_PICTURES.Equals(null) || SD_PATH_PICTURES.Equals("") || SD_PATH_PICTURES.Equals("/Pictures"))
+            {
+                Toast.MakeText(this, "You don't have SD card", ToastLength.Long).Show();
+                
+            } else
+            {
+                //Toast.MakeText(this, SD_PATH_PICTURES, ToastLength.Long).Show(); 
+                if (rb.Text.Equals("SD CARD"))
+                {
+                    ChangeFolderForPhotos(PHONE_PATH_PICTURES + "/" + FOLDER_NAME, SD_PATH_PICTURES + "/" + FOLDER_NAME);
+                }
+                else if (rb.Text.Equals("PHONE"))
+                {
+                    ChangeFolderForPhotos(SD_PATH_PICTURES + "/" + FOLDER_NAME, PHONE_PATH_PICTURES + "/" + FOLDER_NAME);
+                }
+                else
+                {
+                    Toast.MakeText(this, "ELSE?", ToastLength.Long).Show();
+                }
+            }
+
+            
+        }
+
+        private void ChangeFolderForPhotos(string sourceDir, string destDir)
+        {
+            if (Directory.Exists(sourceDir))
+            {
+                Toast.MakeText(this, "Source Dir Exists...", ToastLength.Short).Show();
+                try
+                {
+                    string[] picList = Directory.GetFiles(sourceDir, "*.jpg");
+
+                    if (!Directory.Exists(destDir))
+                        Directory.CreateDirectory(destDir);
+
+                    foreach (string f in picList)
+                    {
+                        string fName = f.Substring(sourceDir.Length + 1);
+                        System.IO.File.Copy(System.IO.Path.Combine(sourceDir, fName), System.IO.Path.Combine(destDir, fName), true);
+                    }
+
+                    foreach (string f in picList)
+                    {
+                        System.IO.File.Delete(f);
+                    }
+
+                }
+                catch (DirectoryNotFoundException dirNotFound)
+                {
+                    Toast.MakeText(this, dirNotFound.ToString(), ToastLength.Long).Show();
+                }
+                Toast.MakeText(this, "DONE", ToastLength.Short).Show();
+            }
         }
 
         private void checkFunction(object sender, EventArgs e)
         {
-            /*Toast.MakeText(this, "SD card path: " + GetBaseFolderPath(true), ToastLength.Long).Show();
-            Toast.MakeText(this, "Phone path: " + GetBaseFolderPath(false), ToastLength.Long).Show();*/
-            if(Directory.Exists(MainActivity.GetBaseFolderPath(true) + "/CheckThisOutOnSD"))
-            {
-                Toast.MakeText(this, "WORKED", ToastLength.Long).Show();
-            }
+            Toast.MakeText(this, "SD card path: " + GetBaseFolderPath(true), ToastLength.Long).Show();
+            Toast.MakeText(this, "Phone path: " + GetBaseFolderPath(false), ToastLength.Long).Show();
         }
 
         public static string GetBaseFolderPath(bool getSDPath = false)
@@ -81,11 +139,6 @@ namespace simple_Camera
             return baseFolderPath;
         }
 
-        private void Settings_Click(object sender, EventArgs e)
-        {
-            StartActivity(new Android.Content.Intent(this, typeof(SettingsActivity)));
-        }
-
         private void DoPhoto_Click(object sender, EventArgs e)
         {
             TakePhoto();
@@ -99,19 +152,13 @@ namespace simple_Camera
                 PhotoSize = Plugin.Media.Abstractions.PhotoSize.Medium,
                 CompressionQuality = 40,
                 Name = "myimage.jpg",
-                Directory = "newDirectory",
+                Directory = FOLDER_NAME,
+                //It is important to set true to SaveToAlbum!!!
                 SaveToAlbum = true
             });
 
             if (file == null)
                 return;
-
-            //Check the last taken photo
-            byte[] imageArray = System.IO.File.ReadAllBytes(file.Path);
-            //Toast.MakeText(this, file.ToString(), ToastLength.Long).Show();
-            Bitmap bitmap = BitmapFactory.DecodeByteArray(imageArray, 0, imageArray.Length);
-            ImageViewLastPhoto.SetImageBitmap(bitmap);
-            txtPath.Text = file.Path;
             
         }
 
