@@ -15,13 +15,11 @@ namespace simple_Camera
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = true)]
     public class MainActivity : AppCompatActivity
     {
-        public static string PHONE_PATH_PICTURES = GetBaseFolderPath(false) + "/Pictures";
+        public static string PHONE_PATH_PICTURES = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures).ToString();
         public static string SD_PATH_PICTURES = GetBaseFolderPath(true) + "/Pictures";
         public static string FOLDER_NAME = "PrzegladyZdjecia";
 
-        Button btnDoPhoto, btnSettings, check;
-        //ImageView ImageViewLastPhoto;
-        TextView txtPath;
+        Button btnDoPhoto, check;
 
         readonly string[] permissionGroup =
         {
@@ -37,9 +35,6 @@ namespace simple_Camera
             SetContentView(Resource.Layout.activity_main);
 
             btnDoPhoto = (Button)FindViewById(Resource.Id.btnDoPhoto);
-            //btnSettings = (Button)FindViewById(Resource.Id.btnSettings);
-            //ImageViewLastPhoto = (ImageView)FindViewById(Resource.Id.ImageViewLastPhoto);
-            //txtPath = (TextView)FindViewById(Resource.Id.txtPath);
             check = (Button)FindViewById(Resource.Id.check);
             RadioButton radioPhone = FindViewById<RadioButton>(Resource.Id.radioPhone);
             RadioButton radioSD = FindViewById<RadioButton>(Resource.Id.radioSD);
@@ -49,7 +44,6 @@ namespace simple_Camera
 
             check.Click += checkFunction;
             btnDoPhoto.Click += DoPhoto_Click;
-            //btnSettings.Click += Settings_Click;
             RequestPermissions(permissionGroup, 0);
         }
 
@@ -57,16 +51,28 @@ namespace simple_Camera
         {
             RadioButton rb = (RadioButton)sender;
             //Toast.MakeText(this, rb.Text, ToastLength.Short).Show();
-            if(rb.Text.Equals("SD CARD"))
+            if(SD_PATH_PICTURES.Equals(null) || SD_PATH_PICTURES.Equals("") || SD_PATH_PICTURES.Equals("/Pictures"))
             {
-                ChangeFolderForPhotos(PHONE_PATH_PICTURES + "/" + FOLDER_NAME, SD_PATH_PICTURES + "/" + FOLDER_NAME);
-            } else if(rb.Text.Equals("PHONE"))
-            {
-                ChangeFolderForPhotos(SD_PATH_PICTURES + "/" + FOLDER_NAME, PHONE_PATH_PICTURES + "/" + FOLDER_NAME);
+                Toast.MakeText(this, "You don't have SD card", ToastLength.Long).Show();
+                
             } else
             {
-                Toast.MakeText(this, "ELSE?", ToastLength.Long).Show();
+                //Toast.MakeText(this, SD_PATH_PICTURES, ToastLength.Long).Show(); 
+                if (rb.Text.Equals("SD CARD"))
+                {
+                    ChangeFolderForPhotos(PHONE_PATH_PICTURES + "/" + FOLDER_NAME, SD_PATH_PICTURES + "/" + FOLDER_NAME);
+                }
+                else if (rb.Text.Equals("PHONE"))
+                {
+                    ChangeFolderForPhotos(SD_PATH_PICTURES + "/" + FOLDER_NAME, PHONE_PATH_PICTURES + "/" + FOLDER_NAME);
+                }
+                else
+                {
+                    Toast.MakeText(this, "ELSE?", ToastLength.Long).Show();
+                }
             }
+
+            
         }
 
         private void ChangeFolderForPhotos(string sourceDir, string destDir)
@@ -136,11 +142,6 @@ namespace simple_Camera
             }
 
             return baseFolderPath;
-        }
-
-        private void Settings_Click(object sender, EventArgs e)
-        {
-            StartActivity(new Android.Content.Intent(this, typeof(SettingsActivity)));
         }
 
         private void DoPhoto_Click(object sender, EventArgs e)
