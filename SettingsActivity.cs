@@ -37,12 +37,12 @@ namespace simple_Camera
 
         private void CopyFunction(object sender, EventArgs e)
         {
-            if(Directory.Exists(Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures).ToString() + "/newDirectory"))
+            if(Directory.Exists(Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures).ToString() + "/PrzegladyZdjecia"))
             {
                 Toast.MakeText(this, "Działa wiec kopiujemy do nowej", ToastLength.Long).Show();
                 try
                 {
-                    string sourceDir = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures).ToString() + "/newDirectory";
+                    string sourceDir = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures).ToString() + "/PrzegladyZdjecia";
                     string destDir = MainActivity.GetBaseFolderPath(true) + "/CheckThisOutOnSD";
                     string[] picList = Directory.GetFiles(sourceDir, "*.jpg");
                     
@@ -67,22 +67,6 @@ namespace simple_Camera
                 //Copy(Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures).ToString() + "/newDirectory", Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures).ToString() + "/CheckThis");
                 Toast.MakeText(this, "DONE", ToastLength.Long).Show();
             }
-        }
-
-        void Copy(string sourceDir, string targetDir)
-        {
-            if(!Directory.Exists(targetDir))
-                Directory.CreateDirectory(targetDir);
-
-            foreach (var file in Directory.GetFiles(sourceDir))
-            {
-                System.IO.File.Move(file, Path.Combine(targetDir, Path.GetFileName(file)));
-                Toast.MakeText(this, file, ToastLength.Long).Show();
-            }
-                
-
-            foreach (var directory in Directory.GetDirectories(sourceDir))
-                Copy(directory, Path.Combine(targetDir, Path.GetFileName(directory)));
         }
     }
 }
