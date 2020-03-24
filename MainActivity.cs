@@ -9,6 +9,8 @@ using Plugin.Media;
 using Android.Graphics;
 using System.IO;
 using Android.Content;
+using Android.Provider;
+using Android.Util;
 
 namespace simple_Camera
 {
@@ -79,6 +81,94 @@ namespace simple_Camera
             
         }
 
+        /*private void saveBitmap(Context context, Bitmap bitmap,
+                        Bitmap.CompressFormat format, String mimeType,
+                        String displayName)
+        {
+            String relativeLocation = Android.OS.Environment.DirectoryPictures;
+
+            ContentValues  contentValues = new ContentValues();
+            
+            contentValues.Put(MediaStore.MediaColumns.DisplayName, displayName);
+            contentValues.Put(MediaStore.MediaColumns.MimeType, mimeType);
+            contentValues.Put(MediaStore.MediaColumns.RelativePath, relativeLocation);
+
+            ContentResolver resolver = context.ContentResolver;
+
+            OutputStream stream = null;
+            Uri uri = null;
+
+            try
+            {
+                Uri contentUri = MediaStore.Images.Media.ExternalContentUri;
+                uri = resolver.Insert(contentUri, contentValues);
+
+                if (uri == null)
+                {
+                    throw new System.IO.IOException("Failed to create new MediaStore record.");
+                }
+
+                stream = resolver.OpenOutputStream(uri);
+
+                if (stream == null)
+                {
+                    throw new System.IO.IOException("Failed to get output stream.");
+                }
+
+                if (bitmap.Compress(format, 95, stream) == false)
+                {
+                    throw new System.IO.IOException("Failed to save bitmap.");
+                }
+            }
+            catch (System.IO.IOException e)
+            {
+                if (uri != null)
+                {
+                    // Don't leave an orphan entry in the MediaStore
+                    resolver.Delete(uri, null, null);
+                }
+
+                throw e;
+            }
+            finally
+            {
+                if (stream != null)
+                {
+                    stream.Close();
+                }
+            }
+        }*/
+
+        /*private void saveImage(Bitmap bitmap, String name)
+        {
+            OutputStream fos;
+            if (Build.VERSION.SdkInt >= Build.VERSION_CODES.Q) {
+                ContentResolver resolver = ContentResolver;
+                ContentValues contentValues = new ContentValues();
+                contentValues.Put(MediaStore.MediaColumns.DisplayName, name + ".jpg");
+                contentValues.Put(MediaStore.MediaColumns.MimeType, "image/jpg");
+                contentValues.Put(MediaStore.MediaColumns.RelativePath, Environment.DIRECTORY_PICTURES);
+                Uri imageUri = resolver.Insert(MediaStore.Images.Media., contentValues);
+                fos = resolver.OpenOutputStream(Java.Util.Objects.requireNonNull(imageUri));
+            } else {
+                String imagesDir = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures).ToString();
+                Java.IO.File image = new Java.IO.File(imagesDir, name + ".jpg");
+            fos = new FileOutputStream(image);
+        }
+        bitmap.Compress(Bitmap.CompressFormat.Jpeg, 100, fos);
+            Objects.requireNonNull(fos).close();
+        }*/
+
+        void ExportBitmapAsJPG(Bitmap bitmap, string sdCardPath)
+        {
+            if (!Directory.Exists(sdCardPath))
+                Directory.CreateDirectory(sdCardPath);
+            var filePath = System.IO.Path.Combine(sdCardPath, "test.jpg");
+            var stream = new FileStream(filePath, FileMode.Create);
+            bitmap.Compress(Bitmap.CompressFormat.Png, 100, stream);
+            stream.Close();
+        }
+
         private void ChangeFolderForPhotos(string sourceDir, string destDir)
         {
             if (Directory.Exists(sourceDir))
@@ -116,8 +206,16 @@ namespace simple_Camera
 
         private void checkFunction(object sender, EventArgs e)
         {
-            Toast.MakeText(this, "SD card path: " + GetBaseFolderPath(true), ToastLength.Long).Show();
-            Toast.MakeText(this, "Phone path: " + GetBaseFolderPath(false), ToastLength.Long).Show();
+            /*Toast.MakeText(this, "SD card path: " + GetBaseFolderPath(true), ToastLength.Long).Show();
+            Toast.MakeText(this, "Phone path: " + GetBaseFolderPath(false), ToastLength.Long).Show();*/
+            if(Directory.Exists(SD_PATH_PICTURES))
+            {
+                Toast.MakeText(this, "SD DZIAŁa", ToastLength.Long).Show();
+            } else
+            {
+                Toast.MakeText(this, "NIE", ToastLength.Long).Show();
+            }
+            
         }
 
         public static string GetBaseFolderPath(bool getSDPath = false)
@@ -173,9 +271,41 @@ namespace simple_Camera
             Bitmap bitmap = BitmapFactory.DecodeByteArray(imageArray, 0, imageArray.Length);
             ImageViewLastPhoto.SetImageBitmap(bitmap);
             txtPath.Text = file.Path;
-            if(Directory.Exists(file.Path))
+
+            ExportBitmapAsJPG(bitmap, SD_PATH_PICTURES + "/" + FOLDER_NAME);
+            if(Directory.Exists(SD_PATH_PICTURES + "/" + FOLDER_NAME))
+                Toast.MakeText(this, "TAK SD", ToastLength.Long).Show();
+            else
+                Toast.MakeText(this, "NIE SD", ToastLength.Long).Show();
+
+            ExportBitmapAsJPG(bitmap, PHONE_PATH_PICTURES + "/" + FOLDER_NAME);
+            /*if (Directory.Exists(PHONE_PATH_PICTURES + "/" + FOLDER_NAME))
+                Toast.MakeText(this, "TAK PHONE", ToastLength.Long).Show();
+            else
+                Toast.MakeText(this, "NIE PHONE", ToastLength.Long).Show();*/
+
+            /*if(Directory.Exists(file.Path))
                 Toast.MakeText(this, "ISTNIEJE", ToastLength.Long).Show();
             else Toast.MakeText(this, "NIE ISTNIEJE", ToastLength.Long).Show();
+
+            if(Directory.Exists(Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures).ToString()))
+            {
+                string sourceDir = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures).ToString();
+                Toast.MakeText(this, "Ciekawe", ToastLength.Long).Show();
+                *//*string[] picList = Directory.GetFiles(sourceDir, "*.jpg");
+                string[] dirList = Directory.GetDirectories(sourceDir, "*");
+                string showDirs = "";
+                foreach (string dir in dirList)
+                    showDirs += dir + "\n";
+                Log.Debug("ShowDirs: ", showDirs);
+                string showFiles = "";
+                foreach (string pic in picList)
+                    showFiles += pic + "\n";
+                Log.Debug("ShowFiles: ", showFiles);*//*
+            } else
+            {
+                Toast.MakeText(this, "NIE Ciekawe", ToastLength.Long).Show();
+            }*/
         }
 
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, Android.Content.PM.Permission[] grantResults)
