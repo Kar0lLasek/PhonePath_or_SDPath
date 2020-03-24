@@ -9,15 +9,17 @@ using Plugin.Media;
 using Android.Graphics;
 using System.IO;
 using Android.Content;
+using Android.Util;
 
 namespace simple_Camera
 {
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = true)]
     public class MainActivity : AppCompatActivity
     {
-        public static string PHONE_PATH_PICTURES = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures).ToString();
+        //public static string PHONE_PATH_PICTURES = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures).ToString();
+        public static string PHONE_PATH_PICTURES = GetBaseFolderPath(false) + "/Pictures";
         public static string SD_PATH_PICTURES = GetBaseFolderPath(true) + "/Pictures";
-        public static string FOLDER_NAME = "PrzegladyZdjecia";
+        public static string FOLDER_NAME = "ChcialbymZnacOdpowiedz";
 
         Button btnDoPhoto, check;
 
@@ -107,10 +109,29 @@ namespace simple_Camera
             }
         }
 
+        void ExportBitmapAsJPG(Bitmap bitmap, string sdCardPath, string fileName)
+        {
+            if (!Directory.Exists(sdCardPath))
+                Directory.CreateDirectory(sdCardPath);
+            var filePath = System.IO.Path.Combine(sdCardPath, fileName);
+            var stream = new FileStream(filePath, FileMode.Create);
+            bitmap.Compress(Bitmap.CompressFormat.Png, 100, stream);
+            stream.Close();
+            if(File.Exists(filePath))
+            {
+                Toast.MakeText(this, "Plik stworzony", ToastLength.Short).Show();
+            } else
+            {
+                Toast.MakeText(this, "Plik nieudany", ToastLength.Short).Show();
+            }
+        }
+
         private void checkFunction(object sender, EventArgs e)
         {
-            Toast.MakeText(this, "SD card path: " + GetBaseFolderPath(true), ToastLength.Long).Show();
-            Toast.MakeText(this, "Phone path: " + GetBaseFolderPath(false), ToastLength.Long).Show();
+            /*Toast.MakeText(this, "SD card path: " + GetBaseFolderPath(true), ToastLength.Long).Show();
+            Toast.MakeText(this, "Phone path: " + GetBaseFolderPath(false), ToastLength.Long).Show();*/
+            if(Directory.Exists(GetBaseFolderPath(false) + "/Pictures/ChcialbymZnacOdpowiedz"))
+                Toast.MakeText(this, "Phone path works", ToastLength.Long).Show();
         }
 
         public static string GetBaseFolderPath(bool getSDPath = false)
@@ -154,12 +175,27 @@ namespace simple_Camera
                 Name = "myimage.jpg",
                 Directory = FOLDER_NAME,
                 //It is important to set true to SaveToAlbum!!!
-                SaveToAlbum = true
+                //SaveToAlbum = true
             });
 
             if (file == null)
                 return;
+
+            byte[] imageArray = System.IO.File.ReadAllBytes(file.Path);
+            //Toast.MakeText(this, file.ToString(), ToastLength.Long).Show();
+            Bitmap bitmap = BitmapFactory.DecodeByteArray(imageArray, 0, imageArray.Length);
+            try
+            {
+                ExportBitmapAsJPG(bitmap, PHONE_PATH_PICTURES + "/" + FOLDER_NAME, "nowa.png");
+                ExportBitmapAsJPG(bitmap, SD_PATH_PICTURES + "/" + FOLDER_NAME, "nazwa.png");
+            } catch(Exception ex)
+            {
+                Log.Error("Exception: ", ex.Message);
+            }
             
+            
+            
+
         }
 
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, Android.Content.PM.Permission[] grantResults)
