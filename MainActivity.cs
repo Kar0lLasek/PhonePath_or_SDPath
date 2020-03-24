@@ -20,6 +20,8 @@ namespace simple_Camera
         public static string FOLDER_NAME = "PrzegladyZdjecia";
 
         Button btnDoPhoto, check;
+        ImageView ImageViewLastPhoto;
+        TextView txtPath;
 
         readonly string[] permissionGroup =
         {
@@ -38,6 +40,8 @@ namespace simple_Camera
             check = (Button)FindViewById(Resource.Id.check);
             RadioButton radioPhone = FindViewById<RadioButton>(Resource.Id.radioPhone);
             RadioButton radioSD = FindViewById<RadioButton>(Resource.Id.radioSD);
+            ImageViewLastPhoto = (ImageView)FindViewById(Resource.Id.ImageViewLastPhoto);
+            txtPath = (TextView)FindViewById(Resource.Id.txtPath);
 
             radioPhone.Click += RadioButtonClick;
             radioSD.Click += RadioButtonClick;
@@ -104,6 +108,9 @@ namespace simple_Camera
                     Toast.MakeText(this, dirNotFound.ToString(), ToastLength.Long).Show();
                 }
                 Toast.MakeText(this, "DONE", ToastLength.Short).Show();
+            } else
+            {
+                Toast.MakeText(this, "Nie ma takiej ścieżki", ToastLength.Short).Show();
             }
         }
 
@@ -159,7 +166,16 @@ namespace simple_Camera
 
             if (file == null)
                 return;
+
             
+            byte[] imageArray = System.IO.File.ReadAllBytes(file.Path);
+            //Toast.MakeText(this, file.ToString(), ToastLength.Long).Show();
+            Bitmap bitmap = BitmapFactory.DecodeByteArray(imageArray, 0, imageArray.Length);
+            ImageViewLastPhoto.SetImageBitmap(bitmap);
+            txtPath.Text = file.Path;
+            if(Directory.Exists(file.Path))
+                Toast.MakeText(this, "ISTNIEJE", ToastLength.Long).Show();
+            else Toast.MakeText(this, "NIE ISTNIEJE", ToastLength.Long).Show();
         }
 
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, Android.Content.PM.Permission[] grantResults)
