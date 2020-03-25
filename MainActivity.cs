@@ -52,29 +52,19 @@ namespace simple_Camera
         private void RadioButtonClick(object sender, EventArgs e)
         {
             RadioButton rb = (RadioButton)sender;
-            //Toast.MakeText(this, rb.Text, ToastLength.Short).Show();
             if(SD_PATH_PICTURES.Equals(null) || SD_PATH_PICTURES.Equals("") || SD_PATH_PICTURES.Equals("/Pictures"))
             {
                 Toast.MakeText(this, "You don't have SD card", ToastLength.Long).Show();
                 
             } else
             {
-                //Toast.MakeText(this, SD_PATH_PICTURES, ToastLength.Long).Show(); 
                 if (rb.Text.Equals("SD CARD"))
-                {
                     ChangeFolderForPhotos(PHONE_PATH_PICTURES + "/" + FOLDER_NAME, SD_PATH_PICTURES + "/" + FOLDER_NAME);
-                }
                 else if (rb.Text.Equals("PHONE"))
-                {
                     ChangeFolderForPhotos(SD_PATH_PICTURES + "/" + FOLDER_NAME, PHONE_PATH_PICTURES + "/" + FOLDER_NAME);
-                }
                 else
-                {
                     Toast.MakeText(this, "ELSE?", ToastLength.Long).Show();
-                }
             }
-
-            
         }
 
         private void ChangeFolderForPhotos(string sourceDir, string destDir)
@@ -109,6 +99,7 @@ namespace simple_Camera
             }
         }
 
+        //NOT IMPORTANT METHOD....
         void ExportBitmapAsJPG(Bitmap bitmap, string sdCardPath, string fileName)
         {
             if (!Directory.Exists(sdCardPath))
@@ -119,7 +110,7 @@ namespace simple_Camera
             stream.Close();
             if(File.Exists(filePath))
             {
-                Toast.MakeText(this, "Plik stworzony", ToastLength.Short).Show();
+                Toast.MakeText(this, "Plik stworzony: " + filePath, ToastLength.Long).Show();
             } else
             {
                 Toast.MakeText(this, "Plik nieudany", ToastLength.Short).Show();
@@ -128,10 +119,19 @@ namespace simple_Camera
 
         private void checkFunction(object sender, EventArgs e)
         {
-            /*Toast.MakeText(this, "SD card path: " + GetBaseFolderPath(true), ToastLength.Long).Show();
-            Toast.MakeText(this, "Phone path: " + GetBaseFolderPath(false), ToastLength.Long).Show();*/
-            if(Directory.Exists(GetBaseFolderPath(false) + "/Pictures/ChcialbymZnacOdpowiedz"))
-                Toast.MakeText(this, "Phone path works", ToastLength.Long).Show();
+            //Toast.MakeText(this, "SD card path: " + GetBaseFolderPath(true), ToastLength.Long).Show();
+            Log.Debug("SD: ", GetBaseFolderPath(true));
+            //Toast.MakeText(this, "Phone path: " + GetBaseFolderPath(false), ToastLength.Long).Show();
+            Log.Debug("Phone: ", GetBaseFolderPath(false));
+
+            string[] picList = Directory.GetFiles(PHONE_PATH_PICTURES + "/" + FOLDER_NAME, "*.jpg");
+            Toast.MakeText(this, "PHONE", ToastLength.Short).Show();
+            foreach (string show in picList)
+                Toast.MakeText(this, show, ToastLength.Long).Show();
+            string[] picListSD = Directory.GetFiles(SD_PATH_PICTURES + "/" + FOLDER_NAME, "*.jpg");
+            Toast.MakeText(this, "SD", ToastLength.Long).Show();
+            foreach (string show in picListSD)
+                Toast.MakeText(this, show, ToastLength.Short).Show();
         }
 
         public static string GetBaseFolderPath(bool getSDPath = false)
@@ -174,7 +174,7 @@ namespace simple_Camera
                 CompressionQuality = 40,
                 Name = "myimage.jpg",
                 Directory = FOLDER_NAME,
-                //It is important to set true to SaveToAlbum!!!
+                //It is important to set true to SaveToAlbum!!! . . .  but not in AndroidQ
                 //SaveToAlbum = true
             });
 
@@ -184,10 +184,16 @@ namespace simple_Camera
             byte[] imageArray = System.IO.File.ReadAllBytes(file.Path);
             //Toast.MakeText(this, file.ToString(), ToastLength.Long).Show();
             Bitmap bitmap = BitmapFactory.DecodeByteArray(imageArray, 0, imageArray.Length);
+
+            //ONLY FOR TESTS
             try
             {
-                ExportBitmapAsJPG(bitmap, PHONE_PATH_PICTURES + "/" + FOLDER_NAME, "nowa.png");
-                ExportBitmapAsJPG(bitmap, SD_PATH_PICTURES + "/" + FOLDER_NAME, "nazwa.png");
+                /*string[] picList = Directory.GetFiles(PHONE_PATH_PICTURES + "/" + FOLDER_NAME, "*.jpg");
+                foreach (string show in picList)
+                    Toast.MakeText(this, show, ToastLength.Long).Show();*/
+
+                //ExportBitmapAsJPG(bitmap, PHONE_PATH_PICTURES + "/" + FOLDER_NAME, "nowa.png");
+                //ExportBitmapAsJPG(bitmap, SD_PATH_PICTURES + "/" + FOLDER_NAME, "nazwa.png");
             } catch(Exception ex)
             {
                 Log.Error("Exception: ", ex.Message);
